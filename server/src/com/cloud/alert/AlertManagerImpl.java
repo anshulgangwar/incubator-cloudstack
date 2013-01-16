@@ -16,29 +16,6 @@
 // under the License.
 package com.cloud.alert;
 
-import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.ejb.Local;
-import javax.mail.Authenticator;
-import javax.mail.Message.RecipientType;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.URLName;
-import javax.mail.internet.InternetAddress;
-import javax.naming.ConfigurationException;
-
-import org.apache.log4j.Logger;
-
 import com.cloud.alert.dao.AlertDao;
 import com.cloud.api.ApiDBUtils;
 import com.cloud.capacity.Capacity;
@@ -70,6 +47,7 @@ import com.cloud.storage.StoragePoolVO;
 import com.cloud.storage.dao.StoragePoolDao;
 import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.NumbersUtil;
+import com.cloud.utils.component.Adapters;
 import com.cloud.utils.component.ComponentLocator;
 import com.cloud.utils.component.Inject;
 import com.cloud.utils.db.DB;
@@ -77,6 +55,27 @@ import com.cloud.utils.db.SearchCriteria;
 import com.sun.mail.smtp.SMTPMessage;
 import com.sun.mail.smtp.SMTPSSLTransport;
 import com.sun.mail.smtp.SMTPTransport;
+import org.apache.log4j.Logger;
+
+import javax.ejb.Local;
+import javax.mail.Authenticator;
+import javax.mail.Message.RecipientType;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.URLName;
+import javax.mail.internet.InternetAddress;
+import javax.naming.ConfigurationException;
+import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Local(value={AlertManager.class})
 public class AlertManagerImpl implements AlertManager {
@@ -103,7 +102,9 @@ public class AlertManagerImpl implements AlertManager {
     @Inject private StoragePoolDao _storagePoolDao;
     @Inject private ConfigurationDao _configDao;
     @Inject private ResourceManager _resourceMgr;
-    @Inject private ConfigurationManager _configMgr;   
+    @Inject private ConfigurationManager _configMgr;
+    @Inject(adapter = AlertHandler.class)
+    Adapters<AlertHandler> _alertHandlers;
     
     private Timer _timer = null;
     private float _cpuOverProvisioningFactor = 1;
@@ -265,9 +266,16 @@ public class AlertManagerImpl implements AlertManager {
         try {
             if (_emailAlert != null) {
                 _emailAlert.sendAlert(alertType, dataCenterId, podId, null, subject, body);
+            } else {
+                for(AlertHandler alertHandler : _alertHandlers){
+                    alertHandler.sendAlert(alertType, dataCenterId, podId, null, subject, body);
+                }
             }
         } catch (Exception ex) {
             s_logger.error("Problem sending email alert", ex);
+            for(AlertHandler alertHandler : _alertHandlers){
+                alertHandler.sendAlert(alertType, dataCenterId, podId, null, subject, body);
+            }
         }
     }
 
@@ -739,6 +747,10 @@ public class AlertManagerImpl implements AlertManager {
 
         // TODO:  make sure this handles SSL transport (useAuth is true) and regular
         public void sendAlert(short alertType, long dataCenterId, Long podId, Long clusterId, String subject, String content) throws MessagingException, UnsupportedEncodingException {
+            for(AlertHandler alertHandler : _alertHandlers){
+                alertHandler.sendAlert(alertType, dataCenterId, podId, clusterId, subject, content);
+            }
+
             AlertVO alert = null;
             if ((alertType != AlertManager.ALERT_TYPE_HOST) &&
                 (alertType != AlertManager.ALERT_TYPE_USERVM) &&

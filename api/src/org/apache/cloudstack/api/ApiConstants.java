@@ -16,8 +16,6 @@
 // under the License.
 package org.apache.cloudstack.api;
 
-import org.omg.CORBA.PUBLIC_MEMBER;
-
 public class ApiConstants {
     public static final String ACCOUNT = "account";
     public static final String ACCOUNTS = "accounts";
@@ -426,6 +424,10 @@ public class ApiConstants {
     public static final String CONDITION_IDS = "conditionids";
     public static final String COUNTERPARAM_LIST = "counterparam";
     public static final String AUTOSCALE_USER_ID = "autoscaleuserid";
+    public static final String COMMUNITY = "community";
+    public static final String SNMP_MANAGER_ID = "snmpmanagerid";
+    public static final String ALERT_ID = "alertid";
+    public static final String N = "n"; //used for SNMP to get Last n Alerts
 
     public enum HostDetails {
         all, capacity, events, stats, min;

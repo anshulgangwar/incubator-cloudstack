@@ -16,8 +16,7 @@
 // under the License.
 package com.cloud.alert;
 
-import java.util.Date;
-import java.util.UUID;
+import com.cloud.utils.db.GenericDao;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,10 +26,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import org.apache.cloudstack.api.Identity;
-import com.cloud.utils.db.GenericDao;
-import org.apache.cloudstack.api.InternalIdentity;
+import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Table(name="alert")
@@ -102,12 +99,14 @@ public class AlertVO implements Alert {
         this.subject = subject;
     }
 
+    @Override
     public Long getClusterId() {
 		return clusterId;
 	}
 	public void setClusterId(Long clusterId) {
 		this.clusterId = clusterId;
 	}
+
 	@Override
     public Long getPodId() {
         return podId;

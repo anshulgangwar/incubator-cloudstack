@@ -1,0 +1,100 @@
+package com.cloud.api.commands;
+
+import com.cloud.alert.snmp.SnmpManagers;
+import com.cloud.alert.snmp.SnmpService;
+import com.cloud.api.response.SnmpManagerResponse;
+import com.cloud.exception.ConcurrentOperationException;
+import com.cloud.exception.InsufficientCapacityException;
+import com.cloud.exception.NetworkRuleConflictException;
+import com.cloud.exception.ResourceAllocationException;
+import com.cloud.exception.ResourceUnavailableException;
+import com.cloud.user.Account;
+import com.cloud.user.UserContext;
+import org.apache.cloudstack.api.APICommand;
+import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.BaseCmd;
+import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.PlugService;
+import org.apache.cloudstack.api.ServerApiException;
+import org.apache.log4j.Logger;
+
+@APICommand(name="registerSnmpManager", description="Registers the SNMP Manager which can receive trap", responseObject=SnmpManagerResponse.class)
+public class RegisterSnmpManagerCmd extends BaseCmd {
+    public static final Logger s_logger = Logger.getLogger(RegisterSnmpManagerCmd.class.getName());
+
+    private static final String s_name = "registersnmpmanagerresponse";
+
+    /////////////////////////////////////////////////////
+    //////////////// API parameters /////////////////////
+    /////////////////////////////////////////////////////
+
+    @Parameter(name=ApiConstants.NAME, type=CommandType.STRING, required=true, description="name of the SNMP Manager")
+    private String name;
+
+    @Parameter(name= ApiConstants.IP_ADDRESS, type=CommandType.STRING, required=true, description="IP address of the SNMP Manager")
+    private String ipAddress;
+
+    @Parameter(name=ApiConstants.PORT, type=CommandType.INTEGER, description="If port is specified traps will be sent to this port, default is 162.")
+    private Integer port;
+
+    @Parameter(name=ApiConstants.ENABLED, type=CommandType.BOOLEAN, description="Enabled/Disabled the SNMP Manager")
+    private Boolean enabled;
+
+    @Parameter(name = ApiConstants.COMMUNITY, type = CommandType.STRING, description = "snmp community string to be used to contact SNMP Manager")
+    private String community;
+
+    /////////////////////////////////////////////////////
+    /////////////////// Accessors ///////////////////////
+    /////////////////////////////////////////////////////
+
+    public String getName() {
+        return name;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public Boolean isEnabled() {
+        return enabled;
+    }
+
+    public String getCommunity() {
+        return community;
+    }
+
+    /////////////////////////////////////////////////////
+    /////////////// API Implementation///////////////////
+    /////////////////////////////////////////////////////
+
+    @PlugService
+    SnmpService _snmpService;
+
+    @Override
+    public void execute() throws ResourceUnavailableException, InsufficientCapacityException, ServerApiException, ConcurrentOperationException, ResourceAllocationException, NetworkRuleConflictException {
+        UserContext.current().setEventDetails("Registering SNMP Manager "+getIpAddress()+"/"+getPort());
+        SnmpManagers snmpManagers = _snmpService.registerSnmpManager(this);
+        if(snmpManagers != null){
+            SnmpManagerResponse response = _snmpService.createSnmpManagerResponse(snmpManagers);
+            response.setResponseName(getCommandName());
+            this.setResponseObject(response);
+        } else {
+            throw new ServerApiException(BaseCmd.INTERNAL_ERROR, "Failed to register SNMP Manager");
+        }
+    }
+
+    @Override
+    public String getCommandName() {
+        return s_name;
+    }
+
+    @Override
+    public long getEntityOwnerId() {
+        return Account.ACCOUNT_ID_SYSTEM;
+    }
+
+}

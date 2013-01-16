@@ -156,6 +156,7 @@ DROP TABLE IF EXISTS `cloud`.`autoscale_vmprofiles`;
 DROP TABLE IF EXISTS `cloud`.`autoscale_policies`;
 DROP TABLE IF EXISTS `cloud`.`counter`;
 DROP TABLE IF EXISTS `cloud`.`conditions`;
+DROP TABLE IF EXISTS `cloud`.`snmp_managers`;
 
 CREATE TABLE `cloud`.`version` (
   `id` bigint unsigned NOT NULL UNIQUE AUTO_INCREMENT COMMENT 'id',
@@ -2543,6 +2544,18 @@ INSERT INTO `cloud`.`counter` (id, uuid, source, name, value,created) VALUES (1,
 INSERT INTO `cloud`.`counter` (id, uuid, source, name, value,created) VALUES (2, UUID(), 'snmp','Linux System CPU - percentage', '1.3.6.1.4.1.2021.11.10.0', now());
 INSERT INTO `cloud`.`counter` (id, uuid, source, name, value,created) VALUES (3, UUID(), 'snmp','Linux CPU Idle - percentage', '1.3.6.1.4.1.2021.11.11.0', now());
 INSERT INTO `cloud`.`counter` (id, uuid, source, name, value,created) VALUES (100, UUID(), 'netscaler','Response Time - microseconds', 'RESPTIME', now());
+
+CREATE TABLE `cloud`.`snmp_managers` (
+  `id` bigint unsigned NOT NULL auto_increment,
+  `uuid` varchar(40),
+  `name` varchar(255) COMMENT 'name for SNMP Manager',
+  `ip_address` varchar(11) NOT NULL COMMENT 'IP Adress for SNMP Manager',
+  `port` int NOT NULL DEFAULT '162' COMMENT 'SNMP port for SNMP Manager',
+  `community` varchar(255) NOT NULL DEFAULT 'public' COMMENT 'the community string to be used to reach out to the SNMP Manager',
+  `enabled` tinyint unsigned NOT NULL DEFAULT 1 COMMENT 'whether SNMP Manager is enabled or not',
+  PRIMARY KEY  (`id`),
+  CONSTRAINT `uc_snmp_managers_uuid` UNIQUE (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET foreign_key_checks = 1;
 
