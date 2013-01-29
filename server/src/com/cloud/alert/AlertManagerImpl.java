@@ -46,6 +46,7 @@ import com.cloud.storage.StorageManager;
 import com.cloud.storage.StoragePoolVO;
 import com.cloud.storage.dao.StoragePoolDao;
 import com.cloud.storage.dao.VolumeDao;
+import com.cloud.user.UserContext;
 import com.cloud.utils.NumbersUtil;
 import com.cloud.utils.component.Adapters;
 import com.cloud.utils.component.ComponentLocator;
@@ -263,19 +264,16 @@ public class AlertManagerImpl implements AlertManager {
     public void sendAlert(short alertType, long dataCenterId, Long podId, String subject, String body) {
         // TODO:  queue up these messages and send them as one set of issues once a certain number of issues is reached?  If that's the case,
         //         shouldn't we have a type/severity as part of the API so that severe errors get sent right away?
+
         try {
             if (_emailAlert != null) {
                 _emailAlert.sendAlert(alertType, dataCenterId, podId, null, subject, body);
             } else {
-                for(AlertHandler alertHandler : _alertHandlers){
-                    alertHandler.sendAlert(alertType, dataCenterId, podId, null, subject, body);
-                }
+                s_logger.warn(" alertType: " +alertType  + " / accountId: " + UserContext.current().getAccountId() + " / dataCenterId: "+ dataCenterId + " / podId: " +  podId + " / clusterId: " + null + " / message: " + subject  + " / accountId: " + UserContext.current().getAccountId());
             }
         } catch (Exception ex) {
             s_logger.error("Problem sending email alert", ex);
-            for(AlertHandler alertHandler : _alertHandlers){
-                alertHandler.sendAlert(alertType, dataCenterId, podId, null, subject, body);
-            }
+            s_logger.warn(" alertType: " +alertType  + " / accountId: " + UserContext.current().getAccountId() + " / dataCenterId: "+ dataCenterId + " / podId: " +  podId + " / clusterId: " + null + " / message: " + subject  );
         }
     }
 
@@ -747,6 +745,7 @@ public class AlertManagerImpl implements AlertManager {
 
         // TODO:  make sure this handles SSL transport (useAuth is true) and regular
         public void sendAlert(short alertType, long dataCenterId, Long podId, Long clusterId, String subject, String content) throws MessagingException, UnsupportedEncodingException {
+            s_logger.warn(" alertType: " + alertType  + " / accountId: " + UserContext.current().getAccountId() + " / dataCenterId: "+ dataCenterId + " / podId: " +  podId + " / clusterId: " + clusterId + " / message: " + subject );
             for(AlertHandler alertHandler : _alertHandlers){
                 alertHandler.sendAlert(alertType, dataCenterId, podId, clusterId, subject, content);
             }

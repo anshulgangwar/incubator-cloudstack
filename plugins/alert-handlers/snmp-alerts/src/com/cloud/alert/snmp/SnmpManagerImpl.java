@@ -35,7 +35,7 @@ public class SnmpManagerImpl implements SnmpManager, SnmpService, AlertHandler {
    @Inject
    private SnmpManagersDao _snmpManagersDao;
 
-   List<SnmpHelper> snmpHelpers = null;
+   private static List<SnmpHelper> snmpHelpers = null;
 
    @Override
    public boolean configure(String name, Map<String, Object> params) throws ConfigurationException {
@@ -302,8 +302,8 @@ public class SnmpManagerImpl implements SnmpManager, SnmpService, AlertHandler {
    }
 
    @Override
-   public void sendSnmpTrap(short alertType, long dataCenterId, Long podId, Long clusterId, String message) {
-      s_logger.info(" sending SNMP trap to SNMP Managers");
+   public  void sendSnmpTrap(short alertType, long dataCenterId, Long podId, Long clusterId, String message) {
+     // s_logger.info(" sending SNMP trap to SNMP Managers");
 
 
          for (SnmpHelper h : snmpHelpers) {
@@ -320,6 +320,13 @@ public class SnmpManagerImpl implements SnmpManager, SnmpService, AlertHandler {
          * m.setType(type);
          * _snmpManagersDao.persist(m);
          */
+   }
+
+   public static void sendTrap(short alertType, long dataCenterId, Long podId, Long clusterId, String message){
+       s_logger.info(" sending SNMP trap to SNMP Managers from static");
+       for (SnmpHelper h : snmpHelpers) {
+           h.sendSnmpTrap(alertType, dataCenterId, podId, clusterId, message);
+       }
    }
 
    @Override

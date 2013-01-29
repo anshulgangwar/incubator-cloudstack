@@ -2549,7 +2549,7 @@ CREATE TABLE `cloud`.`snmp_managers` (
   `id` bigint unsigned NOT NULL auto_increment,
   `uuid` varchar(40),
   `name` varchar(255) COMMENT 'name for SNMP Manager',
-  `ip_address` varchar(11) NOT NULL COMMENT 'IP Adress for SNMP Manager',
+  `ip_address` varchar(15) NOT NULL COMMENT 'IP Adress for SNMP Manager',
   `port` int NOT NULL DEFAULT '162' COMMENT 'SNMP port for SNMP Manager',
   `community` varchar(255) NOT NULL DEFAULT 'public' COMMENT 'the community string to be used to reach out to the SNMP Manager',
   `enabled` tinyint unsigned NOT NULL DEFAULT 1 COMMENT 'whether SNMP Manager is enabled or not',

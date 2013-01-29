@@ -42,4 +42,18 @@ public interface SnmpManager extends Manager {
      *
      */
     public boolean isEnabled();
+
+    /**
+     * sends the SNMP Trap
+     *
+     * @param alertType
+     * @param dataCenterId
+     * @param podId
+     * @param clusterId
+     * @param message
+     * alerts type in broader category means general alerts ,
+     *            usage alerts ...
+     *            different from alertType
+     */
+    public void sendSnmpTrap(short alertType, long dataCenterId, Long podId, Long clusterId, String message);
 }

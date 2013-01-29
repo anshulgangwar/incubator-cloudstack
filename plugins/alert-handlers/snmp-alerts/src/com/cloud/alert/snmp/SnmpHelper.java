@@ -15,7 +15,8 @@ import java.io.IOException;
  * @author Anshul Gangwar
  * 
  */
-public class SnmpHelper {
+public class
+        SnmpHelper {
     private static final Logger s_logger = Logger.getLogger(SnmpHelper.class.getName());
 
     private Snmp snmp;
@@ -58,6 +59,7 @@ public class SnmpHelper {
         trap.add(new VariableBinding(SnmpConstants2.POD_ID, new UnsignedInteger32(podId)));
         trap.add(new VariableBinding(SnmpConstants2.CLUSTER_ID, new UnsignedInteger32(clusterId)));
         trap.add(new VariableBinding(SnmpConstants2.MESSAGE, new OctetString(message)));
+
 
         return trap;
     }
