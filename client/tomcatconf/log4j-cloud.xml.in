@@ -78,7 +78,7 @@ under the License.
    <!-- send alert warnings+ as the SNMP trap if it is configured! -->
    <!-- ============================== -->
 
-   <appender name="SNMP" class="com.cloud.snmp.SnmpTrapAppender">
+   <appender name="SNMP" class="org.apache.cloudstack.snmp.SnmpTrapAppender">
          <param name="Threshold" value="WARN"/>
          <layout class="com.cloud.snmp.SnmpEnhancedPatternLayout">
             <param name="PairDelimeter" value="/"/>

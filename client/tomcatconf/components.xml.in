@@ -176,16 +176,16 @@ under the License.
             <adapter name="BasicAgentAuthorizer" class="com.cloud.agent.manager.authn.impl.BasicAgentAuthManager"/>
         </adapters>
         <adapters key="com.cloud.alert.AlertHandler">
-                    <adapter name="SnmpAlertHandler" class="com.cloud.alert.snmp.SnmpManagerImpl"/>
+                    <adapter name="SnmpAlertHandler" class="org.apache.cloudstack.alert.snmp.SnmpManagerImpl"/>
         </adapters>
         <manager name="OvsTunnelManager" key="com.cloud.network.ovs.OvsTunnelManager" class="com.cloud.network.ovs.OvsTunnelManagerImpl"/>
         <manager name="ElasticLoadBalancerManager" key="com.cloud.network.lb.ElasticLoadBalancerManager" class="com.cloud.network.lb.ElasticLoadBalancerManagerImpl"/>
-        <manager name="SnmpManager" key="com.cloud.alert.snmp.SnmpManager" class="com.cloud.alert.snmp.SnmpManagerImpl"/>
+        <manager name="SnmpManager" key="org.apache.cloudstack.alert.snmp.SnmpManager" class="org.apache.cloudstack.alert.snmp.SnmpManagerImpl"/>
         <pluggableservice name="ApiDiscoveryService" key="org.apache.cloudstack.discovery.ApiDiscoveryService" class="org.apache.cloudstack.discovery.ApiDiscoveryServiceImpl"/>
         <pluggableservice name="VirtualRouterElementService" key="com.cloud.network.element.VirtualRouterElementService" class="com.cloud.network.element.VirtualRouterElement"/>
         <pluggableservice name="NiciraNvpElementService" key="com.cloud.network.element.NiciraNvpElementService" class="com.cloud.network.element.NiciraNvpElement"/>
-        <pluggableservice name="SnmpService" key="com.cloud.alert.snmp.SnmpService" class="com.cloud.alert.snmp.SnmpManagerImpl"/>
-        <dao name="SnmpManagersDao" class="com.cloud.alert.snmp.dao.SnmpManagersDaoImpl" singleton="false"/>
+        <pluggableservice name="SnmpService" key="org.apache.cloudstack.alert.snmp.SnmpService" class="org.apache.cloudstack.alert.snmp.SnmpManagerImpl"/>
+        <dao name="SnmpManagersDao" class="org.apache.cloudstack.alert.snmp.dao.SnmpManagersDaoImpl" singleton="false"/>
         <dao name="OvsTunnelInterfaceDao" class="com.cloud.network.ovs.dao.OvsTunnelInterfaceDaoImpl" singleton="false"/>
         <dao name="OvsTunnelAccountDao" class="com.cloud.network.ovs.dao.OvsTunnelNetworkDaoImpl" singleton="false"/>
         <dao name="NiciraNvpDao" class="com.cloud.network.dao.NiciraNvpDaoImpl" singleton="false"/>

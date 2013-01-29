@@ -492,6 +492,13 @@ configureNetscalerLoadBalancer=1
 listNetscalerLoadBalancers=1
 listNetscalerLoadBalancerNetworks=1
 
+#### SNMP commands
+registerSnmpManager=1
+updateSnmpManager=1
+deleteSnmpManager=1
+listSnmpManagers=1
+getLastSnmpAlerts=1
+
 #### nicira nvp commands
 
 addNiciraNvpDevice=1
