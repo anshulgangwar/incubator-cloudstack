@@ -31,8 +31,8 @@ import com.cloud.exception.PermissionDeniedException;
 import com.cloud.utils.component.Manager;
 import com.cloud.utils.Pair;
 
-@Local(value = { DomainManager.class })
-public class MockDomainManagerImpl implements  Manager, DomainManager {
+@Local(value = { DomainManager.class, DomainService.class })
+public class MockDomainManagerImpl implements  Manager, DomainManager, DomainService {
 
     @Override
     public Domain createDomain(String name, Long parentId, String networkDomain) {
@@ -42,6 +42,12 @@ public class MockDomainManagerImpl implements  Manager, DomainManager {
 
     @Override
     public Domain getDomain(long id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Domain getDomain(String uuid) {
         // TODO Auto-generated method stub
         return null;
     }

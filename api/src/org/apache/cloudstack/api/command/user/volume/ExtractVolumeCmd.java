@@ -23,6 +23,7 @@ import org.apache.cloudstack.api.response.ZoneResponse;
 import org.apache.log4j.Logger;
 
 import org.apache.cloudstack.api.ApiConstants;
+import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.BaseCmd;
 import org.apache.cloudstack.api.APICommand;
@@ -137,7 +138,7 @@ public class ExtractVolumeCmd extends BaseAsyncCmd {
                 Volume vol = _entityMgr.findById(Volume.class, id);
                 response.setId(vol.getUuid());
                 response.setName(vol.getName());
-                DataCenter zone = _entityMgr.findById(DataCenter.class, id);
+                DataCenter zone = _entityMgr.findById(DataCenter.class, zoneId);
                 response.setZoneId(zone.getUuid());
                 response.setZoneName(zone.getName());
                 response.setMode(mode);
@@ -148,11 +149,11 @@ public class ExtractVolumeCmd extends BaseAsyncCmd {
                 response.setUrl(uploadInfo.getUploadUrl());
                 this.setResponseObject(response);
             } else {
-                throw new ServerApiException(BaseCmd.INTERNAL_ERROR, "Failed to extract volume");
+                throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to extract volume");
             }
         } catch (URISyntaxException ex) {
             s_logger.info(ex);
-            throw new ServerApiException(BaseCmd.PARAM_ERROR, ex.getMessage());
+            throw new ServerApiException(ApiErrorCode.PARAM_ERROR, ex.getMessage());
         }
     }
 }
