@@ -1,57 +1,46 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License
+
 package org.apache.cloudstack.alert.snmp;
 
-import org.snmp4j.smi.OID;
-
 /**
- * @author Anshul Gangwar
- *
- *IMPORTANT      
- * 
- * These OIDs are based on MIB file. If there is any change in MIB file
- * then that should be reflected in this file also * 
+ * <p/>
+ * IMPORTANT
+ * <p/>
+ * These OIDs are based on <b>CS-ROOT-MIB</b> MIB file. If there is any change in MIB file
+ * then that should be reflected in this file also *
  * <br/><br/>
  * suffix 2 due to conflict with SnmpConstants class of snmp4j
  */
 public class SnmpConstants2 {
 
-    public static final short GENERAL_ALERT = 1;
+    public static final String CLOUDSTACK = "1.3.6.1.4.1.18060.15";
 
-    public static final short USAGE_ALERT   = 2;
+    public static final String OBJECTS_PREFIX = CLOUDSTACK + ".1.1.";
 
-    public static final int ROOT_OID = 45000;
+    public static final String TRAPS_PREFIX = CLOUDSTACK + ".1.2.0.";
 
-    public static final OID CLOUDSTACK =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID});
-    public static final OID ALERTS =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1});
-    public static final OID TRAPS =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 0});
-    public static final OID OBJECTS =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 1});
-    public static final OID CONFORMANCE =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 2});
-    public static final OID GROUPS =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 2, 1});
-    public static final OID COMPLIANCES =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 2, 2});
-    public static final OID ALERTS_TRAP =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 0, 1});
-    public static final OID ALERT_TYPE =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 1, 1});
-    public static final OID DATACENTER_ID =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 1, 2});
-    public static final OID POD_ID =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 1, 3});
-    public static final OID CLUSTER_ID =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 1, 4});
-    public static final OID MESSAGE =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 1, 5});
-    public static final OID COMPLIANCE =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 2, 2, 1});
-    public static final OID ALERTS_OBJECT_GROUP =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 2, 1, 1});
-    public static final OID ALERTS_NOTIFICATIONS_GROUP =
-            new OID(new int[]{1, 3, 6, 1, 4, 1, ROOT_OID, 1, 2, 1, 2});
+    public static final String DATA_CENTER_ID = OBJECTS_PREFIX + 1;
 
+    public static final String POD_ID = OBJECTS_PREFIX + 2;
+
+    public static final String CLUSTER_ID = OBJECTS_PREFIX + 3;
+
+    public static final String MESSAGE = OBJECTS_PREFIX + 4;
+
+    public static final String GENERATION_TIME = OBJECTS_PREFIX + 5;
 }
-

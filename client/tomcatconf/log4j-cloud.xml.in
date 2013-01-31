@@ -80,7 +80,7 @@ under the License.
 
    <appender name="SNMP" class="org.apache.cloudstack.snmp.SnmpTrapAppender">
          <param name="Threshold" value="WARN"/>
-         <layout class="com.cloud.snmp.SnmpEnhancedPatternLayout">
+         <layout class="org.apache.cloudstack.snmp.SnmpEnhancedPatternLayout">
             <param name="PairDelimeter" value="/"/>
             <param name="KeyValueDelimeter" value=":"/>
          </layout>

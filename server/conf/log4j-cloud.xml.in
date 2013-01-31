@@ -62,16 +62,6 @@ under the License.
          <param name="ConversionPattern" value="%-5p [%c{3}] (%t:%x) %m%n"/>
       </layout>
    </appender>
-   <!-- ============================== -->
-   <!-- send warnings+ as the SNMP trap if it is configured! -->
-   <!-- ============================== -->
-
-   <appender name="SNMP" class="org.apache.cloudstack.snmp.SnmpTrapAppender">
-      <param name="Threshold" value="WARN"/>
-      <layout class="org.apache.log4j.EnhancedPatternLayout">
-         <param name="ConversionPattern" value="%-5p [%c{3}] (%t:%x) %m%n"/>
-      </layout>
-   </appender>
 
    <!-- ============================== -->
    <!-- Append messages to the console -->
@@ -115,17 +105,6 @@ under the License.
       <appender-ref ref="APISERVER"/>
    </logger>
 
-   <!-- ============================== -->
-   <!-- Add or remove this logger for SNMP, this logger is for SNMP alerts plugin  -->
-   <!-- ============================== -->
-
-   <logger name="com.cloud.alert.AlertManagerImpl"  additivity="false">
-      <level value="WARN"/>
-      <appender-ref ref="SNMP"/>
-      <appender-ref ref="SYSLOG"/>
-      <appender-ref ref="CONSOLE"/>
-      <appender-ref ref="FILE"/>
-   </logger>
 
    <!-- ======================= -->
    <!-- Setup the Root category -->

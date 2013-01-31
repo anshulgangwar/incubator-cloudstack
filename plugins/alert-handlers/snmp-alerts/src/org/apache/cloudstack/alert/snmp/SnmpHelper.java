@@ -1,3 +1,20 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License
+
 package org.apache.cloudstack.alert.snmp;
 
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -6,87 +23,112 @@ import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.smi.*;
+import org.snmp4j.smi.Address;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.UdpAddress;
+import org.snmp4j.smi.UnsignedInteger32;
+import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
+import java.util.Date;
 
-/**
- * @author Anshul Gangwar
- * 
- */
-public class
-        SnmpHelper {
+public class SnmpHelper {
     private static final Logger s_logger = Logger.getLogger(SnmpHelper.class.getName());
 
-    private Snmp snmp;
-    private CommunityTarget target;
-    private String address;
+    private Snmp _snmp;
+    private CommunityTarget _target;
+    private String _address;
 
     public SnmpHelper(String address, String community) {
-        this.address = address;
+        this._address = address;
         setCommunityTarget(address, community);
         try {
-            snmp = new Snmp(new DefaultUdpTransportMapping());
+            _snmp = new Snmp(new DefaultUdpTransportMapping());
         } catch (IOException e) {
-            snmp = null;
+            _snmp = null;
             throw new CloudRuntimeException(" Some error occured in crearting snmp object ");
         }
-
     }
 
-    public void sendSnmpTrap(short alertType, long dataCenterId, Long podId, Long clusterId, String message) {
+    public void sendSnmpTrap(short alertType, long dataCenterId, Long podId, Long clusterId, String message, Date
+        generationTime) {
         s_logger.info(" sending SNMP trap to SNMP Managers");
         try {
-            if (snmp != null) {
-                snmp.send(createPDU(alertType, dataCenterId, podId, clusterId, message), target, null, null);
+            if (_snmp != null) {
+                _snmp.send(createPDU(alertType, dataCenterId, podId, clusterId, message, generationTime), _target,
+                    null, null);
             }
         } catch (IOException e) {
             throw new CloudRuntimeException(" Some error occured in sending SNMP Trap");
         }
     }
 
-    private PDU createPDU(short alertType, long dataCenterId, Long podId, Long clusterId, String message) {
+    private PDU createPDU(short alertType, Long dataCenterId, Long podId, Long clusterId, String message, Date
+        generationTime) {
         PDU trap = new PDU();
         trap.setType(PDU.TRAP);
-       if(clusterId == null){
-          clusterId = 0L;
-       }
 
-        trap.add(new VariableBinding(SnmpConstants.snmpTrapOID, SnmpConstants2.ALERTS_TRAP));
-        trap.add(new VariableBinding(SnmpConstants2.ALERT_TYPE, new Integer32(alertType)));
-        trap.add(new VariableBinding(SnmpConstants2.DATACENTER_ID, new UnsignedInteger32(dataCenterId)));
-        trap.add(new VariableBinding(SnmpConstants2.POD_ID, new UnsignedInteger32(podId)));
-        trap.add(new VariableBinding(SnmpConstants2.CLUSTER_ID, new UnsignedInteger32(clusterId)));
-        trap.add(new VariableBinding(SnmpConstants2.MESSAGE, new OctetString(message)));
+        alertType++;
+        if (alertType > 0) {
+            trap.add(new VariableBinding(SnmpConstants.snmpTrapOID, getOID(SnmpConstants2.TRAPS_PREFIX + alertType)));
+            if (dataCenterId != null) {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.DATA_CENTER_ID),
+                    new UnsignedInteger32(dataCenterId)));
+            } else {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.DATA_CENTER_ID)));
+            }
 
+            if (podId != null) {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID), new UnsignedInteger32(podId)));
+            } else {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID)));
+            }
+
+            if (clusterId != null) {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID), new UnsignedInteger32(clusterId)));
+            } else {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID)));
+            }
+
+            if (message != null) {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE), new OctetString(message)));
+            } else {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE)));
+            }
+
+            if (generationTime != null) {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.GENERATION_TIME),
+                    new OctetString(generationTime.toString())));
+            } else {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.GENERATION_TIME)));
+            }
+        } else {
+            throw new CloudRuntimeException(" Invalid alert Type");
+        }
 
         return trap;
     }
 
-    public CommunityTarget setCommunityTarget(String address, String community) {
-        Address targetaddress = new UdpAddress(address);
-        target = new CommunityTarget();
-        target.setCommunity(new OctetString(community));
-        target.setVersion(SnmpConstants.version2c);
-        target.setAddress(targetaddress);
-        return target;
+    private OID getOID(String oidString) {
+        return new OID(oidString);
     }
 
-    public static void main(String[] args) {
-        SnmpHelper s = new SnmpHelper("127.0.0.1/162", "public");
-        for (short i = 0; i < 3; i++) {
-            s.sendSnmpTrap(i, 20L, 30L, 30L,  " chalo kaam kar raha hai ");
-
-        }
+    public CommunityTarget setCommunityTarget(String address, String community) {
+        Address targetaddress = new UdpAddress(address);
+        _target = new CommunityTarget();
+        _target.setCommunity(new OctetString(community));
+        _target.setVersion(SnmpConstants.version2c);
+        _target.setAddress(targetaddress);
+        return _target;
     }
 
     public String getAddress() {
-        return address;
+        return _address;
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this._address = address;
     }
-
 }
