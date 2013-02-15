@@ -27,6 +27,19 @@ public class SnmpTrapInfo {
     private Date generationTime;
     private short alertType;
 
+    public SnmpTrapInfo() {
+    }
+
+    public SnmpTrapInfo(short alertType, long dataCenterId, long podId, long clusterId, String message,
+                        Date generationTime) {
+        this.podId = podId;
+        this.alertType = alertType;
+        this.clusterId = clusterId;
+        this.dataCenterId = dataCenterId;
+        this.generationTime = generationTime;
+        this.message = message;
+    }
+
     public Short getAlertType() {
         return alertType;
     }

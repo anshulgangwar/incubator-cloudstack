@@ -40,7 +40,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
     private List<String> _communities = null;
     private List<String> _ports = null;
 
-    private List<SnmpHelper> _snmpHelpers = new ArrayList<SnmpHelper>();
+    List<SnmpHelper> _snmpHelpers = new ArrayList<SnmpHelper>();
 
     @Override
     protected void append(LoggingEvent event) {
@@ -69,7 +69,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
 
         SnmpTrapInfo info = l.parseEvent(event);
 
-        if (info != null) {
+        if (info != null && !_snmpHelpers.isEmpty()) {
             for (SnmpHelper helper : _snmpHelpers) {
                 try {
                     helper.sendSnmpTrap(info.getAlertType(), info.getDataCenterId(), info.getPodId(),
@@ -81,7 +81,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
         }
     }
 
-    private void setSnmpHelpers() {
+    void setSnmpHelpers() {
         if (_snmpManagerIpAddresses == null || _snmpManagerIpAddresses.trim().equals("") || _snmpManagerCommunities ==
             null
             || _snmpManagerCommunities.trim().equals("") || _snmpManagerPorts == null || _snmpManagerPorts.trim().equals
@@ -132,6 +132,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
         _ipAddresses = null;
         _communities = null;
         _ports = null;
+        _snmpHelpers.clear();
     }
 
     @Override
