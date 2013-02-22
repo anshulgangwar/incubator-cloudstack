@@ -44,7 +44,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
 
     @Override
     protected void append(LoggingEvent event) {
-        SnmpEnhancedPatternLayout l = null;
+        SnmpEnhancedPatternLayout snmpEnhancedPatternLayout = null;
 
         if (null == getLayout()) {
             errorHandler.error(new StringBuffer().append("No layout set for the Appender named [")
@@ -56,7 +56,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
         }
 
         if (getLayout() instanceof SnmpEnhancedPatternLayout) {
-            l = (SnmpEnhancedPatternLayout) getLayout();
+            snmpEnhancedPatternLayout = (SnmpEnhancedPatternLayout) getLayout();
         } else {
             return;
         }
@@ -67,13 +67,12 @@ public class SnmpTrapAppender extends AppenderSkeleton {
 
         setSnmpHelpers();
 
-        SnmpTrapInfo info = l.parseEvent(event);
+        SnmpTrapInfo snmpTrapInfo = snmpEnhancedPatternLayout.parseEvent(event);
 
-        if (info != null && !_snmpHelpers.isEmpty()) {
+        if (snmpTrapInfo != null && !_snmpHelpers.isEmpty()) {
             for (SnmpHelper helper : _snmpHelpers) {
                 try {
-                    helper.sendSnmpTrap(info.getAlertType(), info.getDataCenterId(), info.getPodId(),
-                        info.getClusterId(), info.getMessage(), info.getGenerationTime());
+                    helper.sendSnmpTrap(snmpTrapInfo);
                 } catch (Exception e) {
                     errorHandler.error(e.getMessage());
                 }
@@ -106,7 +105,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
 
         if (!(_ipAddresses.size() == _communities.size() && _ipAddresses.size() == _ports.size())) {
             reset();
-            errorHandler.error("size of ip addresses , communities, " + "and ports list doesn't match, " +
+            errorHandler.error(" size of ip addresses , communities, " + "and ports list doesn't match, " +
                 "setting all to null");
         }
 
@@ -148,7 +147,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
     private List<String> parse(String str) {
         List<String> result = new ArrayList<String>();
 
-        StringTokenizer tokenizer = new StringTokenizer(str, _delimeter);
+        final StringTokenizer tokenizer = new StringTokenizer(str, _delimeter);
         while (tokenizer.hasMoreTokens()) {
             result.add(tokenizer.nextToken().trim());
         }
@@ -185,23 +184,23 @@ public class SnmpTrapAppender extends AppenderSkeleton {
         return _snmpManagerPorts;
     }
 
-    public void setSnmpManagerPorts(String _snmpManagerPorts) {
-        this._snmpManagerPorts = _snmpManagerPorts;
+    public void setSnmpManagerPorts(String snmpManagerPorts) {
+        this._snmpManagerPorts = snmpManagerPorts;
     }
 
     public String getSnmpManagerCommunities() {
         return _snmpManagerCommunities;
     }
 
-    public void setSnmpManagerCommunities(String _snmpManagerCommunities) {
-        this._snmpManagerCommunities = _snmpManagerCommunities;
+    public void setSnmpManagerCommunities(String snmpManagerCommunities) {
+        this._snmpManagerCommunities = snmpManagerCommunities;
     }
 
     public String getDelimeter() {
         return _delimeter;
     }
 
-    public void setDelimeter(String _delimeter) {
-        this._delimeter = _delimeter;
+    public void setDelimeter(String delimeter) {
+        this._delimeter = delimeter;
     }
 }

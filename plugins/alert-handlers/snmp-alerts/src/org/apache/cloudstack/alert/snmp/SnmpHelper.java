@@ -22,7 +22,6 @@ import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.smi.Address;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.UdpAddress;
@@ -31,16 +30,17 @@ import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 import java.io.IOException;
-import java.util.Date;
 
 public class SnmpHelper {
     private Snmp _snmp;
     private CommunityTarget _target;
-    private String _address;
+
 
     public SnmpHelper(String address, String community) {
-        this._address = address;
-        setCommunityTarget(address, community);
+        _target = new CommunityTarget();
+        _target.setCommunity(new OctetString(community));
+        _target.setVersion(SnmpConstants.version2c);
+        _target.setAddress(new UdpAddress(address));
         try {
             _snmp = new Snmp(new DefaultUdpTransportMapping());
         } catch (IOException e) {
@@ -49,54 +49,53 @@ public class SnmpHelper {
         }
     }
 
-    public void sendSnmpTrap(short alertType, long dataCenterId, Long podId, Long clusterId, String message, Date
-        generationTime) {
+    public void sendSnmpTrap(SnmpTrapInfo snmpTrapInfo) {
         try {
             if (_snmp != null) {
-                _snmp.send(createPDU(alertType, dataCenterId, podId, clusterId, message, generationTime), _target,
+                _snmp.send(createPDU(snmpTrapInfo), _target,
                     null, null);
             }
         } catch (IOException e) {
-            throw new CloudRuntimeException(" Some error occured in sending SNMP Trap");
+            throw new CloudRuntimeException(" Some error occured in sending SNMP Trap ");
         }
     }
 
-    private PDU createPDU(short alertType, Long dataCenterId, Long podId, Long clusterId, String message, Date
-        generationTime) {
+    private PDU createPDU(SnmpTrapInfo snmpTrapInfo) {
         PDU trap = new PDU();
         trap.setType(PDU.TRAP);
 
-        alertType++;
+        int alertType = snmpTrapInfo.getAlertType() + 1;
         if (alertType > 0) {
             trap.add(new VariableBinding(SnmpConstants.snmpTrapOID, getOID(SnmpConstants2.TRAPS_PREFIX + alertType)));
-            if (dataCenterId != null) {
+            if (snmpTrapInfo.getDataCenterId() != 0) {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.DATA_CENTER_ID),
-                    new UnsignedInteger32(dataCenterId)));
+                    new UnsignedInteger32(snmpTrapInfo.getDataCenterId())));
             } else {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.DATA_CENTER_ID)));
             }
 
-            if (podId != null) {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID), new UnsignedInteger32(podId)));
+            if (snmpTrapInfo.getPodId() != 0) {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID), new UnsignedInteger32(snmpTrapInfo.getPodId())));
             } else {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID)));
             }
 
-            if (clusterId != null) {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID), new UnsignedInteger32(clusterId)));
+            if (snmpTrapInfo.getClusterId() != 0) {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID), new UnsignedInteger32(snmpTrapInfo.getClusterId())
+                ));
             } else {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID)));
             }
 
-            if (message != null) {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE), new OctetString(message)));
+            if (snmpTrapInfo.getMessage() != null) {
+                trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE), new OctetString(snmpTrapInfo.getMessage())));
             } else {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE)));
             }
 
-            if (generationTime != null) {
+            if (snmpTrapInfo.getGenerationTime() != null) {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.GENERATION_TIME),
-                    new OctetString(generationTime.toString())));
+                    new OctetString(snmpTrapInfo.getGenerationTime().toString())));
             } else {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.GENERATION_TIME)));
             }
@@ -109,22 +108,5 @@ public class SnmpHelper {
 
     private OID getOID(String oidString) {
         return new OID(oidString);
-    }
-
-    public CommunityTarget setCommunityTarget(String address, String community) {
-        Address targetaddress = new UdpAddress(address);
-        _target = new CommunityTarget();
-        _target.setCommunity(new OctetString(community));
-        _target.setVersion(SnmpConstants.version2c);
-        _target.setAddress(targetaddress);
-        return _target;
-    }
-
-    public String getAddress() {
-        return _address;
-    }
-
-    public void setAddress(String address) {
-        this._address = address;
     }
 }

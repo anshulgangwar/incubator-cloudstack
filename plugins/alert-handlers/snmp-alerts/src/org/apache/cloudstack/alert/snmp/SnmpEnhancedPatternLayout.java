@@ -24,65 +24,78 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 public class SnmpEnhancedPatternLayout extends EnhancedPatternLayout {
-    private String pairDelimeter = "//";
-    private String keyValueDelimeter = "::";
+    private String _pairDelimeter = "//";
+    private String _keyValueDelimeter = "::";
 
     public String getKeyValueDelimeter() {
-        return keyValueDelimeter;
+        return _keyValueDelimeter;
     }
 
     public void setKeyValueDelimeter(String keyValueDelimeter) {
-        this.keyValueDelimeter = keyValueDelimeter;
+        this._keyValueDelimeter = keyValueDelimeter;
     }
 
     public String getPairDelimeter() {
-        return pairDelimeter;
+        return _pairDelimeter;
     }
 
     public void setPairDelimeter(String pairDelimeter) {
-        this.pairDelimeter = pairDelimeter;
+        this._pairDelimeter = pairDelimeter;
     }
 
     public SnmpTrapInfo parseEvent(LoggingEvent event) {
         SnmpTrapInfo snmpTrapInfo = null;
 
-        String message = event.getRenderedMessage();
+        final String message = event.getRenderedMessage();
         if (message.contains("alertType") && message.contains("message")) {
             snmpTrapInfo = new SnmpTrapInfo();
-            final StringTokenizer splitter = new StringTokenizer(message, pairDelimeter);
-            while (splitter.hasMoreTokens()) {
-                final String variable = splitter.nextToken();
-                final StringTokenizer varSplitter = new StringTokenizer(variable, keyValueDelimeter);
-                String token1 = null;
-                String token2 = null;
+            final StringTokenizer messageSplitter = new StringTokenizer(message, _pairDelimeter);
+            while (messageSplitter.hasMoreTokens()) {
+                final String pairToken = messageSplitter.nextToken();
+                final StringTokenizer pairSplitter = new StringTokenizer(pairToken, _keyValueDelimeter);
+                String keyToken = null;
+                String valueToken = null;
 
-                if (varSplitter.hasMoreTokens()) {
-                    token1 = varSplitter.nextToken().trim();
+                if (pairSplitter.hasMoreTokens()) {
+                    keyToken = pairSplitter.nextToken().trim();
                 } else {
                     return snmpTrapInfo;
                 }
 
-                if (varSplitter.hasMoreTokens()) {
-                    token2 = varSplitter.nextToken().trim();
+                if (pairSplitter.hasMoreTokens()) {
+                    valueToken = pairSplitter.nextToken().trim();
                 } else {
                     return snmpTrapInfo;
                 }
 
-                if (token1.equalsIgnoreCase("alertType") && !token2.equalsIgnoreCase("null")) {
-                    snmpTrapInfo.setAlertType(Short.parseShort(token2));
-                } else if (token1.equalsIgnoreCase("dataCenterId") && !token2.equalsIgnoreCase("null")) {
-                    snmpTrapInfo.setDataCenterId(Long.parseLong(token2));
-                } else if (token1.equalsIgnoreCase("podId") && !token2.equalsIgnoreCase("null")) {
-                    snmpTrapInfo.setPodId(Long.parseLong(token2));
-                } else if (token1.equalsIgnoreCase("clusterId") && !token2.equalsIgnoreCase("null")) {
-                    snmpTrapInfo.setClusterId(Long.parseLong(token2));
-                } else if (token1.equalsIgnoreCase("message") && !token2.equalsIgnoreCase("null")) {
-                    snmpTrapInfo.setMessage(token2);
+                if (keyToken.equalsIgnoreCase("alertType") && !valueToken.equalsIgnoreCase("null")) {
+                    snmpTrapInfo.setAlertType(Short.parseShort(valueToken));
+                } else if (keyToken.equalsIgnoreCase("dataCenterId") && !valueToken.equalsIgnoreCase("null")) {
+                    snmpTrapInfo.setDataCenterId(Long.parseLong(valueToken));
+                } else if (keyToken.equalsIgnoreCase("podId") && !valueToken.equalsIgnoreCase("null")) {
+                    snmpTrapInfo.setPodId(Long.parseLong(valueToken));
+                } else if (keyToken.equalsIgnoreCase("clusterId") && !valueToken.equalsIgnoreCase("null")) {
+                    snmpTrapInfo.setClusterId(Long.parseLong(valueToken));
+                } else if (keyToken.equalsIgnoreCase("message") && !valueToken.equalsIgnoreCase("null")) {
+                    snmpTrapInfo.setMessage(getSnmpMessage(message));
                 }
             }
 
             snmpTrapInfo.setGenerationTime(new Date(event.getTimeStamp()));
         }
         return snmpTrapInfo;
+    }
+
+    private String getSnmpMessage(String message) {
+        int lastIndexOfKeyValueDelimeter = message.lastIndexOf(_keyValueDelimeter);
+        int lastIndexOfMessageInString = message.lastIndexOf("message");
+
+        if (lastIndexOfKeyValueDelimeter - lastIndexOfMessageInString <= 9) {
+            return message.substring(lastIndexOfKeyValueDelimeter + _keyValueDelimeter.length()).trim();
+        } else if (lastIndexOfMessageInString < lastIndexOfKeyValueDelimeter) {
+            return message.substring(lastIndexOfMessageInString + _keyValueDelimeter.length() + 8).trim();
+        }
+
+        return message.substring(message.lastIndexOf("message" + _keyValueDelimeter) + 9).trim();
     }
 }

@@ -158,10 +158,18 @@ under the License.
 
 
    <!-- ============================== -->
-   <!-- Add or remove this logger for SNMP, this logger is for SNMP alerts plugin -->
+   <!-- Add or remove these logger for SNMP, this logger is for SNMP alerts plugin -->
    <!-- ============================== -->
 
    <logger name="com.cloud.alert.AlertManagerImpl" additivity="false">
+      <level value="WARN"/>
+      <appender-ref ref="SYSLOG"/>
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+      <appender-ref ref="SNMP"/>
+   </logger>
+
+   <logger name="com.cloud.usage.UsageAlertManagerImpl" additivity="false">
       <level value="WARN"/>
       <appender-ref ref="SYSLOG"/>
       <appender-ref ref="CONSOLE"/>

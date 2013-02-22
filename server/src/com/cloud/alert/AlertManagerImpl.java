@@ -255,11 +255,11 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager {
             if (_emailAlert != null) {
                 _emailAlert.sendAlert(alertType, dataCenterId, podId, null, subject, body);
             } else {
-                s_logger.warn(" alertType:: " +alertType + " // dataCenterId:: "+ dataCenterId + " // podId:: " + podId + " // clusterId:: " + null + " // message:: " + subject );
+                s_logger.warn(" alertType:: " + alertType + " // dataCenterId:: " + dataCenterId + " // podId:: " +
+                    podId + " // clusterId:: " + null + " // message:: " + subject );
             }
         } catch (Exception ex) {
             s_logger.error("Problem sending email alert", ex);
-            s_logger.warn(" alertType:: " +alertType + " // dataCenterId:: "+ dataCenterId + " // podId:: " + podId + " // clusterId:: " + null + " // message:: " + subject );
         }
     }
 
@@ -790,7 +790,8 @@ public class AlertManagerImpl extends ManagerBase implements AlertManager {
 
         // TODO:  make sure this handles SSL transport (useAuth is true) and regular
         public void sendAlert(short alertType, long dataCenterId, Long podId, Long clusterId, String subject, String content) throws MessagingException, UnsupportedEncodingException {
-            s_logger.warn(" alertType:: " +alertType + " // dataCenterId:: "+ dataCenterId + " // podId:: " + podId + " // clusterId:: " + null + " // message:: " + subject );
+            s_logger.warn(" alertType:: " + alertType + " // dataCenterId:: " + dataCenterId + " // podId:: " + podId
+                + " // clusterId:: " + null + " // message:: " + subject);
 
             AlertVO alert = null;
             if ((alertType != AlertManager.ALERT_TYPE_HOST) &&

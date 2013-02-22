@@ -24,23 +24,24 @@ import org.mockito.Mock;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class SnmpTrapAppenderTest {
-    SnmpTrapAppender appender = new SnmpTrapAppender();
-    LoggingEvent event = mock(LoggingEvent.class);
-    SnmpEnhancedPatternLayout l = mock(SnmpEnhancedPatternLayout.class);
+    SnmpTrapAppender _appender = new SnmpTrapAppender();
+    LoggingEvent _event = mock(LoggingEvent.class);
+    SnmpEnhancedPatternLayout _snmpEnhancedPatternLayout = mock(SnmpEnhancedPatternLayout.class);
     @Mock
     List<SnmpHelper> snmpHelpers;
 
     @Test
     public void appendTest(){
-        appender.setSnmpManagerIpAddresses("10.1.1.1,10.1.1.2");
-        appender.setSnmpManagerPorts("162,164");
-        appender.setSnmpManagerCommunities("public,snmp");
+        _appender.setSnmpManagerIpAddresses("10.1.1.1,10.1.1.2");
+        _appender.setSnmpManagerPorts("162,164");
+        _appender.setSnmpManagerCommunities("public,snmp");
 
-        appender.setSnmpHelpers();
-        assertEquals(" error snmpHelper list size not as expected ", appender._snmpHelpers.size(), 2);
+        _appender.setSnmpHelpers();
+        assertEquals(" error snmpHelper list size not as expected ", _appender._snmpHelpers.size(), 2);
 
         /*appender.setSnmpManagerIpAddresses("10.1.1.1,10.1.1.2");
         appender.setSnmpManagerPorts("162,164");
@@ -65,5 +66,15 @@ public class SnmpTrapAppenderTest {
         appender.append(event);
         //
         assertEquals(" error snmpHelper list size not as expected ", appender._snmpHelpers.size(), 2);*/
+    }
+
+    @Test
+    public void appendInvalidInputTest(){
+        _appender.setSnmpManagerIpAddresses("10.1.1,10.1.1.2");
+        _appender.setSnmpManagerPorts("162,164");
+        _appender.setSnmpManagerCommunities("public,snmp");
+
+        _appender.setSnmpHelpers();
+        assertTrue(" list was expected to be empty", _appender._snmpHelpers.isEmpty());
     }
 }

@@ -40,7 +40,7 @@ public class SnmpTrapInfo {
         this.message = message;
     }
 
-    public Short getAlertType() {
+    public short getAlertType() {
         return alertType;
     }
 
