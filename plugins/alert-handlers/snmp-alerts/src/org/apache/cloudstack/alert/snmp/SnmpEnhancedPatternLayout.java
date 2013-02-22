@@ -59,13 +59,13 @@ public class SnmpEnhancedPatternLayout extends EnhancedPatternLayout {
                 if (pairSplitter.hasMoreTokens()) {
                     keyToken = pairSplitter.nextToken().trim();
                 } else {
-                    return snmpTrapInfo;
+                    break;
                 }
 
                 if (pairSplitter.hasMoreTokens()) {
                     valueToken = pairSplitter.nextToken().trim();
                 } else {
-                    return snmpTrapInfo;
+                    break;
                 }
 
                 if (keyToken.equalsIgnoreCase("alertType") && !valueToken.equalsIgnoreCase("null")) {

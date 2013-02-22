@@ -70,27 +70,21 @@ public class SnmpHelper {
             if (snmpTrapInfo.getDataCenterId() != 0) {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.DATA_CENTER_ID),
                     new UnsignedInteger32(snmpTrapInfo.getDataCenterId())));
-            } else {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.DATA_CENTER_ID)));
             }
 
             if (snmpTrapInfo.getPodId() != 0) {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID), new UnsignedInteger32(snmpTrapInfo.getPodId())));
-            } else {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID)));
             }
 
             if (snmpTrapInfo.getClusterId() != 0) {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID), new UnsignedInteger32(snmpTrapInfo.getClusterId())
                 ));
-            } else {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID)));
             }
 
             if (snmpTrapInfo.getMessage() != null) {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE), new OctetString(snmpTrapInfo.getMessage())));
             } else {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE)));
+                throw new CloudRuntimeException(" What is the use of alert without message ");
             }
 
             if (snmpTrapInfo.getGenerationTime() != null) {
