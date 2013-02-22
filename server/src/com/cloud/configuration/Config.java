@@ -137,7 +137,8 @@ public enum Config {
     SnapshotMonthlyMax("Snapshots", SnapshotManager.class, Integer.class, "snapshot.max.monthly", "8", "Maximum monthly snapshots for a volume", null),
     SnapshotPollInterval("Snapshots", SnapshotManager.class, Integer.class, "snapshot.poll.interval", "300", "The time interval in seconds when the management server polls for snapshots to be scheduled.", null),
     SnapshotDeltaMax("Snapshots", SnapshotManager.class, Integer.class, "snapshot.delta.max", "16", "max delta snapshots between two full snapshots.", null),
-
+    BackupSnapshotAferTakingSnapshot("Snapshots", SnapshotManager.class, Boolean.class, "snapshot.backup.rightafter", "true", "backup snapshot right after snapshot is taken", null),
+    
 	// Advanced
     JobExpireMinutes("Advanced", ManagementServer.class, String.class, "job.expire.minutes", "1440", "Time (in minutes) for async-jobs to be kept in system", null),
     JobCancelThresholdMinutes("Advanced", ManagementServer.class, String.class, "job.cancel.threshold.minutes", "60", "Time (in minutes) for async-jobs to be forcely cancelled if it has been in process for long", null),
@@ -247,7 +248,7 @@ public enum Config {
     XenBondStorageNic("Advanced", ManagementServer.class, String.class, "xen.bond.storage.nics", null, "Attempt to bond the two networks if found", null),
     XenHeartBeatInterval("Advanced", ManagementServer.class, Integer.class, "xen.heartbeat.interval", "60", "heartbeat to use when implementing XenServer Self Fencing", null),
     XenGuestNetwork("Hidden", ManagementServer.class, String.class, "xen.guest.network.device", null, "Specify for guest network name label", null),
-
+    XenMaxNics("Advanced", AgentManager.class, Integer.class, "xen.nics.max", "7", "Maximum allowed nics for Vms created on Xen", null),
     // VMware
     VmwarePrivateNetworkVSwitch("Hidden", ManagementServer.class, String.class, "vmware.private.vswitch", null, "Specify the vSwitch on host for private network", null),
     VmwarePublicNetworkVSwitch("Hidden", ManagementServer.class, String.class, "vmware.public.vswitch", null, "Specify the vSwitch on host for public network", null),
@@ -258,7 +259,6 @@ public enum Config {
     VmwareAdditionalVncPortRangeStart("Advanced", ManagementServer.class, Integer.class, "vmware.additional.vnc.portrange.start", "50000", "Start port number of additional VNC port range", null),
     VmwareAdditionalVncPortRangeSize("Advanced", ManagementServer.class, Integer.class, "vmware.additional.vnc.portrange.size", "1000", "Start port number of additional VNC port range", null),
     //VmwareGuestNicDeviceType("Advanced", ManagementServer.class, String.class, "vmware.guest.nic.device.type", "E1000", "Ethernet card type used in guest VM, valid values are E1000, PCNet32, Vmxnet2, Vmxnet3", null),
-    VmwarePerClusterHostMax("Advanced", ManagementServer.class, Integer.class, "vmware.percluster.host.max", "8", "maxmium hosts per vCenter cluster(do not let it grow over 8)", "1-8"),
     VmwareReserveCpu("Advanced", ManagementServer.class, Boolean.class, "vmware.reserve.cpu", "false", "Specify whether or not to reserve CPU based on CPU overprovisioning factor", null),
     VmwareReserveMem("Advanced", ManagementServer.class, Boolean.class, "vmware.reserve.mem", "false", "Specify whether or not to reserve memory based on memory overprovisioning factor", null),
     VmwareRootDiskControllerType("Advanced", ManagementServer.class, String.class, "vmware.root.disk.controller", "ide", "Specify the default disk controller for root volumes, valid values are scsi, ide", null),
@@ -319,7 +319,7 @@ public enum Config {
 	//disabling lb as cluster sync does not work with distributed cluster
 	AgentLbEnable("Advanced", ManagementServer.class, Boolean.class, "agent.lb.enabled", "false", "If agent load balancing enabled in cluster setup", null),
 	SubDomainNetworkAccess("Advanced", NetworkManager.class, Boolean.class, "allow.subdomain.network.access", "true", "Allow subdomains to use networks dedicated to their parent domain(s)", null),
-	UseExternalDnsServers("Advanced", NetworkManager.class, Boolean.class, "use.external.dns", "false", "Bypass internal dns, use exetrnal dns1 and dns2", null),
+	UseExternalDnsServers("Advanced", NetworkManager.class, Boolean.class, "use.external.dns", "false", "Bypass internal dns, use external dns1 and dns2", null),
 	EncodeApiResponse("Advanced", ManagementServer.class, Boolean.class, "encode.api.response", "false", "Do URL encoding for the api response, false by default", null),
 	DnsBasicZoneUpdates("Advanced", NetworkManager.class, String.class, "network.dns.basiczone.updates", "all", "This parameter can take 2 values: all (default) and pod. It defines if DHCP/DNS requests have to be send to all dhcp servers in cloudstack, or only to the one in the same pod", "all,pod"),
 

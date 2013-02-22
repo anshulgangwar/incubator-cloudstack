@@ -1711,7 +1711,7 @@ public class NetworkServiceImpl extends ManagerBase implements  NetworkService {
 
         // 4) if network has been upgraded from a non persistent ntwk offering to a persistent ntwk offering,
         // implement the network if its not already
-        if ( !oldNtwkOff.getIsPersistent() && networkOffering.getIsPersistent()) {
+        if ( networkOfferingChanged && !oldNtwkOff.getIsPersistent() && networkOffering.getIsPersistent()) {
             if( network.getState() == Network.State.Allocated) {
                 try {
                     DeployDestination dest = new DeployDestination(_dcDao.findById(network.getDataCenterId()), null, null, null);
@@ -1938,6 +1938,9 @@ public class NetworkServiceImpl extends ManagerBase implements  NetworkService {
             
             // add VPCVirtualRouter as the defualt network service provider
             addDefaultVpcVirtualRouterToPhysicalNetwork(pNetwork.getId());
+            
+            // add baremetal pxe/dhcp provider to the physical network
+            addDefaultBaremetalProvidersToPhysicalNetwork(pNetwork.getId());
 
             txn.commit();
             return pNetwork;
@@ -2745,6 +2748,18 @@ public class NetworkServiceImpl extends ManagerBase implements  NetworkService {
         element.addElement(nsp.getId(), VirtualRouterProviderType.VirtualRouter);
 
         return nsp;
+    }
+    
+    
+    private PhysicalNetworkServiceProvider addDefaultBaremetalProvidersToPhysicalNetwork(long physicalNetworkId) {
+        PhysicalNetworkVO pvo = _physicalNetworkDao.findById(physicalNetworkId);
+        DataCenterVO dvo = _dcDao.findById(pvo.getDataCenterId());
+        if (dvo.getNetworkType() == NetworkType.Basic) {
+            addProviderToPhysicalNetwork(physicalNetworkId, "BaremetalDhcpProvider", null, null);
+            addProviderToPhysicalNetwork(physicalNetworkId, "BaremetalPxeProvider", null, null);
+            addProviderToPhysicalNetwork(physicalNetworkId, "BaremetaUserdataProvider", null, null);
+        }
+        return null;
     }
     
     protected PhysicalNetworkServiceProvider addDefaultVpcVirtualRouterToPhysicalNetwork(long physicalNetworkId) {

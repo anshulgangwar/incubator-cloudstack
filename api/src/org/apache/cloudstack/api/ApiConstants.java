@@ -218,6 +218,7 @@ public class ApiConstants {
     public static final String VM_LIMIT = "vmlimit";
     public static final String VM_TOTAL = "vmtotal";
     public static final String VNET = "vnet";
+    public static final String IS_VOLATILE = "isvolatile";
     public static final String VOLUME_ID = "volumeid";
     public static final String ZONE_ID = "zoneid";
     public static final String ZONE_NAME = "zonename";
@@ -443,6 +444,7 @@ public class ApiConstants {
     public static final String VM_SNAPSHOT_ID = "vmsnapshotid";
     public static final String VM_SNAPSHOT_DISK_IDS = "vmsnapshotdiskids";
     public static final String VM_SNAPSHOT_MEMORY = "snapshotmemory";
+    public static final String IMAGE_STORE_UUID = "imagestoreuuid";
 
     public enum HostDetails {
         all, capacity, events, stats, min;

@@ -119,7 +119,7 @@ under the License.
    </category>
 
    <category name="org.apache.cloudstack.api.command">
-      <priority value="DEBUG"/>
+      <priority value="TRACE"/>
    </category>
    
    <category name="org">
