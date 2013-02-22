@@ -35,7 +35,6 @@ public class SnmpHelper {
     private Snmp _snmp;
     private CommunityTarget _target;
 
-
     public SnmpHelper(String address, String community) {
         _target = new CommunityTarget();
         _target.setCommunity(new OctetString(community));
@@ -52,8 +51,7 @@ public class SnmpHelper {
     public void sendSnmpTrap(SnmpTrapInfo snmpTrapInfo) {
         try {
             if (_snmp != null) {
-                _snmp.send(createPDU(snmpTrapInfo), _target,
-                    null, null);
+                _snmp.send(createPDU(snmpTrapInfo), _target, null, null);
             }
         } catch (IOException e) {
             throw new CloudRuntimeException(" Some error occured in sending SNMP Trap ");
@@ -73,16 +71,18 @@ public class SnmpHelper {
             }
 
             if (snmpTrapInfo.getPodId() != 0) {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID), new UnsignedInteger32(snmpTrapInfo.getPodId())));
+                trap.add(new VariableBinding(getOID(SnmpConstants2.POD_ID), new UnsignedInteger32(snmpTrapInfo
+                    .getPodId())));
             }
 
             if (snmpTrapInfo.getClusterId() != 0) {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID), new UnsignedInteger32(snmpTrapInfo.getClusterId())
-                ));
+                trap.add(new VariableBinding(getOID(SnmpConstants2.CLUSTER_ID), new UnsignedInteger32(snmpTrapInfo
+                    .getClusterId())));
             }
 
             if (snmpTrapInfo.getMessage() != null) {
-                trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE), new OctetString(snmpTrapInfo.getMessage())));
+                trap.add(new VariableBinding(getOID(SnmpConstants2.MESSAGE), new OctetString(snmpTrapInfo.getMessage
+                    ())));
             } else {
                 throw new CloudRuntimeException(" What is the use of alert without message ");
             }
@@ -94,7 +94,7 @@ public class SnmpHelper {
                 trap.add(new VariableBinding(getOID(SnmpConstants2.GENERATION_TIME)));
             }
         } else {
-            throw new CloudRuntimeException(" Invalid alert Type");
+            throw new CloudRuntimeException(" Invalid alert Type ");
         }
 
         return trap;

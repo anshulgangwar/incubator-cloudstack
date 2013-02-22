@@ -81,10 +81,9 @@ public class SnmpTrapAppender extends AppenderSkeleton {
     }
 
     void setSnmpHelpers() {
-        if (_snmpManagerIpAddresses == null || _snmpManagerIpAddresses.trim().equals("") || _snmpManagerCommunities ==
-            null
-            || _snmpManagerCommunities.trim().equals("") || _snmpManagerPorts == null || _snmpManagerPorts.trim().equals
-            ("")) {
+        if (_snmpManagerIpAddresses == null || _snmpManagerIpAddresses.trim().isEmpty() || _snmpManagerCommunities ==
+            null || _snmpManagerCommunities.trim().isEmpty() || _snmpManagerPorts == null ||
+            _snmpManagerPorts.trim().isEmpty()) {
             reset();
             return;
         }
@@ -107,6 +106,7 @@ public class SnmpTrapAppender extends AppenderSkeleton {
             reset();
             errorHandler.error(" size of ip addresses , communities, " + "and ports list doesn't match, " +
                 "setting all to null");
+            return;
         }
 
         if (!validateIpAddresses() || !validatePorts()) {
