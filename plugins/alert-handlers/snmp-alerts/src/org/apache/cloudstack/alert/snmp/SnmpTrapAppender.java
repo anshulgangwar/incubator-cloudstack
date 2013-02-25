@@ -46,11 +46,8 @@ public class SnmpTrapAppender extends AppenderSkeleton {
     protected void append(LoggingEvent event) {
         SnmpEnhancedPatternLayout snmpEnhancedPatternLayout = null;
 
-        if (null == getLayout()) {
-            errorHandler.error(new StringBuffer().append("No layout set for the Appender named [")
-                .append(getName())
-                .append(']').toString(),
-                null,
+        if (getLayout() == null) {
+            errorHandler.error("No layout set for the Appender named [" + getName() + ']', null,
                 ErrorCode.MISSING_LAYOUT);
             return;
         }
@@ -89,8 +86,8 @@ public class SnmpTrapAppender extends AppenderSkeleton {
         }
 
         if (_oldSnmpManagerIpAddresses != null && _oldSnmpManagerIpAddresses.equals(_snmpManagerIpAddresses) &&
-            _oldSnmpManagerCommunities.equals
-                (_snmpManagerCommunities) && _oldSnmpManagerPorts.equals(_snmpManagerPorts)) {
+            _oldSnmpManagerCommunities.equals(_snmpManagerCommunities) &&
+            _oldSnmpManagerPorts.equals(_snmpManagerPorts)) {
             return;
         }
 

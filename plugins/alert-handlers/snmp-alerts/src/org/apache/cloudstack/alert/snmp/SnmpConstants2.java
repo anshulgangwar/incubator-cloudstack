@@ -27,7 +27,6 @@ package org.apache.cloudstack.alert.snmp;
  * suffix 2 due to conflict with SnmpConstants class of snmp4j
  */
 public class SnmpConstants2 {
-
     public static final String CLOUDSTACK = "1.3.6.1.4.1.18060.15";
 
     public static final String OBJECTS_PREFIX = CLOUDSTACK + ".1.1.";

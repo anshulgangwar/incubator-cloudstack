@@ -44,7 +44,7 @@ public class SnmpHelper {
             _snmp = new Snmp(new DefaultUdpTransportMapping());
         } catch (IOException e) {
             _snmp = null;
-            throw new CloudRuntimeException(" Some error occured in crearting snmp object ");
+            throw new CloudRuntimeException(" Error in crearting snmp object, " + e.getMessage());
         }
     }
 
@@ -54,7 +54,7 @@ public class SnmpHelper {
                 _snmp.send(createPDU(snmpTrapInfo), _target, null, null);
             }
         } catch (IOException e) {
-            throw new CloudRuntimeException(" Some error occured in sending SNMP Trap ");
+            throw new CloudRuntimeException(" Error in sending SNMP Trap, " + e.getMessage());
         }
     }
 
