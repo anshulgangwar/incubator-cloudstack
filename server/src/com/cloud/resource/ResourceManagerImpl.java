@@ -30,6 +30,7 @@ import javax.ejb.Local;
 import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
+import com.cloud.dc.*;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.command.admin.cluster.AddClusterCmd;
 import org.apache.cloudstack.api.command.admin.cluster.DeleteClusterCmd;
@@ -72,12 +73,6 @@ import com.cloud.cluster.ManagementServerNode;
 import com.cloud.configuration.Config;
 import com.cloud.configuration.ConfigurationManager;
 import com.cloud.configuration.dao.ConfigurationDao;
-import com.cloud.dc.ClusterDetailsDao;
-import com.cloud.dc.ClusterVO;
-import com.cloud.dc.DataCenterIpAddressVO;
-import com.cloud.dc.DataCenterVO;
-import com.cloud.dc.HostPodVO;
-import com.cloud.dc.PodCluster;
 import com.cloud.dc.dao.ClusterDao;
 import com.cloud.dc.dao.ClusterVSMMapDao;
 import com.cloud.dc.dao.DataCenterDao;
@@ -483,6 +478,11 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
         clusterId = cluster.getId();
         result.add(cluster);
 
+           ClusterDetailsVO cluster_detail_cpu = new ClusterDetailsVO(clusterId, "cpuOvercommitRatio", Float.toString(cmd.getCpuOvercommitRatio()));
+           ClusterDetailsVO cluster_detail_ram = new ClusterDetailsVO(clusterId, "memoryOvercommitRatio", Float.toString(cmd.getMemoryOvercommitRaito()));
+           _clusterDetailsDao.persist(cluster_detail_cpu);
+           _clusterDetailsDao.persist(cluster_detail_ram);
+
         if (clusterType == Cluster.ClusterType.CloudManaged) {
             return result;
         }
@@ -493,6 +493,21 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
         details.put("username", username);
         details.put("password", password);
         _clusterDetailsDao.persist(cluster.getId(), details);
+
+        _clusterDetailsDao.persist(cluster_detail_cpu);
+        _clusterDetailsDao.persist(cluster_detail_ram);
+        //create a new entry only if the overcommit ratios are greater than 1.
+        if(cmd.getCpuOvercommitRatio().compareTo(1f) > 0) {
+            cluster_detail_cpu = new ClusterDetailsVO(clusterId, "cpuOvercommitRatio", Float.toString(cmd.getCpuOvercommitRatio()));
+            _clusterDetailsDao.persist(cluster_detail_cpu);
+        }
+
+
+        if(cmd.getMemoryOvercommitRaito().compareTo(1f) > 0) {
+             cluster_detail_ram = new ClusterDetailsVO(clusterId, "memoryOvercommitRatio", Float.toString(cmd.getMemoryOvercommitRaito()));
+            _clusterDetailsDao.persist(cluster_detail_ram);
+        }
+
 
         boolean success = false;
         try {
@@ -1061,7 +1076,7 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
     @Override
     @DB
 	public Cluster updateCluster(Cluster clusterToUpdate, String clusterType,
-			String hypervisor, String allocationState, String managedstate) {
+			String hypervisor, String allocationState, String managedstate,Float memoryovercommitratio, Float cpuovercommitratio) {
 
         ClusterVO cluster = (ClusterVO) clusterToUpdate;
         // Verify cluster information and update the cluster if needed
@@ -1143,6 +1158,31 @@ public class ResourceManagerImpl extends ManagerBase implements ResourceManager,
                 doUpdate = true;
             }
         }
+
+       ClusterDetailsVO memory_detail = _clusterDetailsDao.findDetail(cluster.getId(),"memoryOvercommitRatio");
+       if( memory_detail == null){
+           if (memoryovercommitratio.compareTo(1f) > 0){
+               memory_detail = new ClusterDetailsVO(cluster.getId(),"memoryOvercommitRatio",Float.toString(memoryovercommitratio));
+               _clusterDetailsDao.persist(memory_detail);
+           }
+       }
+       else {
+           memory_detail.setValue(Float.toString(memoryovercommitratio));
+           _clusterDetailsDao.update(memory_detail.getId(),memory_detail);
+       }
+
+        ClusterDetailsVO cpu_detail = _clusterDetailsDao.findDetail(cluster.getId(),"cpuOvercommitRatio");
+        if( cpu_detail == null){
+            if (cpuovercommitratio.compareTo(1f) > 0){
+                cpu_detail = new ClusterDetailsVO(cluster.getId(),"cpuOvercommitRatio",Float.toString(cpuovercommitratio));
+                _clusterDetailsDao.persist(cpu_detail);
+            }
+        }
+        else {
+            cpu_detail.setValue(Float.toString(cpuovercommitratio));
+            _clusterDetailsDao.update(cpu_detail.getId(),cpu_detail);
+        }
+
 
         if (doUpdate) {
             Transaction txn = Transaction.currentTxn();

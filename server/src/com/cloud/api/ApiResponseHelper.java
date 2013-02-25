@@ -690,14 +690,12 @@ public class ApiResponseHelper implements ResponseGenerator {
         if (showCapacities != null && showCapacities) {
             List<SummedCapacity> capacities = ApiDBUtils.getCapacityByClusterPodZone(null, pod.getId(), null);
             Set<CapacityResponse> capacityResponses = new HashSet<CapacityResponse>();
-            float cpuOverprovisioningFactor = ApiDBUtils.getCpuOverprovisioningFactor();
-
             for (SummedCapacity capacity : capacities) {
                 CapacityResponse capacityResponse = new CapacityResponse();
                 capacityResponse.setCapacityType(capacity.getCapacityType());
                 capacityResponse.setCapacityUsed(capacity.getUsedCapacity());
                 if (capacity.getCapacityType() == Capacity.CAPACITY_TYPE_CPU) {
-                    capacityResponse.setCapacityTotal(new Long((long) (capacity.getTotalCapacity() * cpuOverprovisioningFactor)));
+                    capacityResponse.setCapacityTotal(new Long((long) (capacity.getTotalCapacity())));
                 } else if (capacity.getCapacityType() == Capacity.CAPACITY_TYPE_STORAGE_ALLOCATED) {
                     List<SummedCapacity> c = ApiDBUtils.findNonSharedStorageForClusterPodZone(null, pod.getId(), null);
                     capacityResponse.setCapacityTotal(capacity.getTotalCapacity() - c.get(0).getTotalCapacity());
@@ -827,12 +825,15 @@ public class ApiResponseHelper implements ResponseGenerator {
         clusterResponse.setClusterType(cluster.getClusterType().toString());
         clusterResponse.setAllocationState(cluster.getAllocationState().toString());
         clusterResponse.setManagedState(cluster.getManagedState().toString());
+        String cpuOvercommitRatio=ApiDBUtils.findClusterDetails(cluster.getId(),"cpuOvercommitRatio").getValue();
+        String memoryOvercommitRatio=ApiDBUtils.findClusterDetails(cluster.getId(),"memoryOvercommitRatio").getValue();
+        clusterResponse.setCpuovercommitratio(cpuOvercommitRatio);
+        clusterResponse.setRamovercommitratio(memoryOvercommitRatio);
 
 
         if (showCapacities != null && showCapacities) {
             List<SummedCapacity> capacities = ApiDBUtils.getCapacityByClusterPodZone(null, null, cluster.getId());
             Set<CapacityResponse> capacityResponses = new HashSet<CapacityResponse>();
-            float cpuOverprovisioningFactor = ApiDBUtils.getCpuOverprovisioningFactor();
 
             for (SummedCapacity capacity : capacities) {
                 CapacityResponse capacityResponse = new CapacityResponse();
@@ -840,8 +841,11 @@ public class ApiResponseHelper implements ResponseGenerator {
                 capacityResponse.setCapacityUsed(capacity.getUsedCapacity());
 
                 if (capacity.getCapacityType() == Capacity.CAPACITY_TYPE_CPU) {
-                    capacityResponse.setCapacityTotal(new Long((long) (capacity.getTotalCapacity() * cpuOverprovisioningFactor)));
-                } else if (capacity.getCapacityType() == Capacity.CAPACITY_TYPE_STORAGE_ALLOCATED) {
+                    capacityResponse.setCapacityTotal(new Long((long) (capacity.getTotalCapacity() * Float.parseFloat(cpuOvercommitRatio))));
+                }else if (capacity.getCapacityType() == Capacity.CAPACITY_TYPE_MEMORY){
+                    capacityResponse.setCapacityTotal(new Long((long) (capacity.getTotalCapacity() * Float.parseFloat(memoryOvercommitRatio))));
+                }
+                else if (capacity.getCapacityType() == Capacity.CAPACITY_TYPE_STORAGE_ALLOCATED) {
                     List<SummedCapacity> c = ApiDBUtils.findNonSharedStorageForClusterPodZone(null, null, cluster.getId());
                     capacityResponse.setCapacityTotal(capacity.getTotalCapacity() - c.get(0).getTotalCapacity());
                     capacityResponse.setCapacityUsed(capacity.getUsedCapacity() - c.get(0).getUsedCapacity());
@@ -2153,12 +2157,47 @@ public class ApiResponseHelper implements ResponseGenerator {
 
         // FIXME - either set netmask or cidr
         response.setCidr(network.getCidr());
-        if (network.getCidr() != null) {
+        response.setNetworkCidr((network.getNetworkCidr()));
+        // If network has reservation its entire network cidr is defined by getNetworkCidr()
+        // if no reservation is present then getCidr() will define the entire network cidr
+        if (network.getNetworkCidr() != null) {
+            response.setNetmask(NetUtils.cidr2Netmask(network.getNetworkCidr()));
+        }
+        if (((network.getCidr()) != null) && (network.getNetworkCidr() == null)) {
             response.setNetmask(NetUtils.cidr2Netmask(network.getCidr()));
         }
         
         response.setIp6Gateway(network.getIp6Gateway());
         response.setIp6Cidr(network.getIp6Cidr());
+
+        // create response for reserved IP ranges that can be used for non-cloudstack purposes
+        String  reservation = null;
+        if ((network.getCidr() != null) && (NetUtils.isNetworkAWithinNetworkB(network.getCidr(), network.getNetworkCidr()))) {
+                String[] guestVmCidrPair = network.getCidr().split("\\/");
+                String[] guestCidrPair = network.getNetworkCidr().split("\\/");
+
+                Long guestVmCidrSize = Long.valueOf(guestVmCidrPair[1]);
+                Long guestCidrSize = Long.valueOf(guestCidrPair[1]);
+
+                String[] guestVmIpRange = NetUtils.getIpRangeFromCidr(guestVmCidrPair[0], guestVmCidrSize);
+                String[] guestIpRange = NetUtils.getIpRangeFromCidr(guestCidrPair[0], guestCidrSize);
+                long startGuestIp = NetUtils.ip2Long(guestIpRange[0]);
+                long endGuestIp = NetUtils.ip2Long(guestIpRange[1]);
+                long startVmIp = NetUtils.ip2Long(guestVmIpRange[0]);
+                long endVmIp = NetUtils.ip2Long(guestVmIpRange[1]);
+
+                if (startVmIp == startGuestIp && endVmIp < endGuestIp -1) {
+                    reservation = (NetUtils.long2Ip(endVmIp + 1) + "-" + NetUtils.long2Ip(endGuestIp));
+                }
+                if (endVmIp == endGuestIp && startVmIp > startGuestIp + 1) {
+                    reservation = (NetUtils.long2Ip(startGuestIp) + "-" + NetUtils.long2Ip(startVmIp-1));
+                }
+                if(startVmIp > startGuestIp + 1 && endVmIp < endGuestIp - 1) {
+                reservation = (NetUtils.long2Ip(startGuestIp) + "-" +  NetUtils.long2Ip(startVmIp-1) + " ,  " +
+                        NetUtils.long2Ip(endVmIp + 1) + "-"+  NetUtils.long2Ip(endGuestIp));
+            }
+        }
+        response.setReservedIpRange(reservation);
 
         //return vlan information only to Root admin
         if (network.getBroadcastUri() != null && UserContext.current().getCaller().getType() == Account.ACCOUNT_TYPE_ADMIN) {

@@ -46,6 +46,7 @@ public class ApiConstants {
     public static final String COMPONENT = "component";
     public static final String CPU_NUMBER = "cpunumber";
     public static final String CPU_SPEED = "cpuspeed";
+    public static final String CPU_OVERCOMMIT_RATIO="cpuovercommitratio";
     public static final String CREATED = "created";
     public static final String CUSTOMIZED = "customized";
     public static final String DESCRIPTION = "description";
@@ -119,6 +120,7 @@ public class ApiConstants {
     public static final String MAX = "max";
     public static final String MAX_SNAPS = "maxsnaps";
     public static final String MEMORY = "memory";
+    public static final String MEMORY_OVERCOMMIT_RATIO="memoryovercommitratio";
     public static final String MODE = "mode";
     public static final String NAME = "name";
     public static final String METHOD_NAME = "methodname";
@@ -445,6 +447,9 @@ public class ApiConstants {
     public static final String VM_SNAPSHOT_DISK_IDS = "vmsnapshotdiskids";
     public static final String VM_SNAPSHOT_MEMORY = "snapshotmemory";
     public static final String IMAGE_STORE_UUID = "imagestoreuuid";
+    public static final String GUEST_VM_CIDR = "guestvmcidr";
+    public static final String NETWORK_CIDR = "networkcidr";
+    public static final String RESERVED_IP_RANGE = "reservediprange";
 
     public enum HostDetails {
         all, capacity, events, stats, min;
